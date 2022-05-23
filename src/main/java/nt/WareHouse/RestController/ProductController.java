@@ -6,9 +6,8 @@ import nt.WareHouse.Dto.ProductDto;
 import nt.WareHouse.Dto.ResponseDto;
 import nt.WareHouse.Service.ProductService;
 import org.springframework.data.domain.Page;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/addProduct")
@@ -22,23 +21,27 @@ public class ProductController {
         return productServise.addProduct(productDto);
     }
 
-    @PostMapping("/get-all")
+    @GetMapping("/get-all")
     public ResponseDto<Page<ProductDto>> getAllProduct(@RequestParam Integer size, @RequestParam Integer page){
         return productServise.getAllProducts(size, page);
     }
 
     @GetMapping("/byProductId/{productId}")
-    public List<Product> getByproductId(@PathVariable Integer productId) {
+    public ResponseDto<Product> getByproductId(@PathVariable Integer productId) {
         return productServise.getByproductId(productId);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("update/{id}")
     public ResponseDto updateProduct(@PathVariable Integer id, @RequestBody ProductDto productDto) {
         return productServise.updateProduct(id, productDto);
     }
 
+    @GetMapping("/get-all-via-param")
+    public ResponseDto<?> getAllViaParam(@RequestParam MultiValueMap<String, String> params){
+        return productServise.getViaParam(params);
+    }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseDto deleteProductById(@PathVariable Integer id) {
         return productServise.deleteProductById(id);
     }

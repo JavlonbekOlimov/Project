@@ -6,10 +6,12 @@ import nt.WareHouse.Dto.ProductDto;
 import nt.WareHouse.Dto.ResponseDto;
 import nt.WareHouse.Mapping.ProductMapping;
 import nt.WareHouse.Repository.ProductRepository;
+import nt.WareHouse.Repository.implement.ProductRepositoryImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.Optional;
 public class ProductService {
 
     public final ProductRepository productRepository;
+    public final ProductRepositoryImpl productRepositoryimpl;
 
     public ResponseDto addProduct(ProductDto productDto) {
         return new ResponseDto(true, 0,"Maxsulot qo'shildi", productRepository.save(ProductMapping.toEntity(productDto)));
@@ -41,24 +44,20 @@ public class ProductService {
         return new ResponseDto<>(false, -1, "ERROR", null);
     };
 
-    public List<Product> getByproductId(Integer id) {
+    public ResponseDto<Product> getByproductId(Integer id) {
         Optional<Product> optional = productRepository.findById(id);
         if (!optional.isPresent()){
-            return (List<Product>) new ResponseDto(false,-1,"Error",null);
+            return new ResponseDto<>(false,-1,"Error",null);
         }
         Product product = optional.get();
-        return (List<Product>) new ResponseDto(true, 0, "OK", product);
+        return new ResponseDto<>(true, 0, "OK", product);
     }
 
     public ResponseDto<ProductDto> updateProduct(Integer id, ProductDto productDto) {
         try {
-            if (productDto.getId() == null){
-                return new ResponseDto<>(false, -2, "ID not empty", productDto);
-            }
-
-            Optional<Product> products = productRepository.findById(productDto.getId());
-            if (!products.isPresent()){
-                return new ResponseDto<>(false, -3, "Bu ID ga mos malumotlar mavjud emas", productDto);
+            Optional<Product> products = productRepository.findById(id);
+            if (products.isEmpty()){
+                return new ResponseDto<>(false, -3, "Bu ID ga mos malumotlar mavjud emas", null);
             }
              Product product = products.get();
             ProductMapping.setEntity(product, productDto);
@@ -74,11 +73,21 @@ public class ProductService {
 
     public ResponseDto deleteProductById(Integer id) {
         Optional<Product> optional = productRepository.findById(id);
-        if (!optional.isPresent()){
+        if (optional.isEmpty()){
             return new ResponseDto(false, -3,"Mahsulot topilmadi", null);
         }
         Product product = optional.get();
-        productRepository.save(product);
+        productRepository.delete(product);
         return new ResponseDto(true,0,"O'chirildi", product);
+    }
+
+    public ResponseDto<?> getViaParam(MultiValueMap<String, String> params) {
+        Optional<?> optionalProducts = productRepositoryimpl.getProductsViaParam(params);
+
+        if(!optionalProducts.isPresent()){
+            return new ResponseDto<>(false, -1, "Bunday ma'lumot mavjud emas",null);
+        }
+        else return new ResponseDto<>(true, 0, "Siz qidirgan ma'lumotlarga " +
+                "mos ma'lumotlar topildi",optionalProducts);
     }
 }

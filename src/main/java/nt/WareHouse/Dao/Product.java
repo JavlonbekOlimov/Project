@@ -3,6 +3,7 @@ package nt.WareHouse.Dao;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -16,6 +17,7 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
     @Column(name = "id")
+    @NonNull
     private Integer id;
 
     @Column(name = "name")
