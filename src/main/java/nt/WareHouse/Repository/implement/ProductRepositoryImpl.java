@@ -20,8 +20,8 @@ public class ProductRepositoryImpl {
 
     private final EntityManager entityManager;
 
-    public Optional<?> getProductsViaParam(MultiValueMap<String, String> params){
-        StringBuilder queryBuilder =new StringBuilder(" where 1=1");
+    public Optional<?> getProductsViaParam(MultiValueMap<String, String> params) {
+        StringBuilder queryBuilder = new StringBuilder(" where 1=1");
         queryParams(params, queryBuilder);
 
         Integer size = NumberHelper.toInt(params.getFirst("size"));
@@ -30,7 +30,7 @@ public class ProductRepositoryImpl {
         boolean isPageable = StringHelper.isValidInt(params.getFirst("size"))
                 && StringHelper.isValidInt(params.getFirst("page"));
 
-        if(isPageable){
+        if (isPageable) {
             queryBuilder.append(" limit :size offset :page");
         }
 
@@ -38,14 +38,14 @@ public class ProductRepositoryImpl {
         Query query = entityManager.createNativeQuery(queryStr, Product.class);
         queryValues(params, query);
 
-        if(isPageable){
+        if (isPageable) {
             query.setParameter("size", size);
             query.setParameter("page", size * page);
         }
 
         List<Product> productList = query.getResultList();
 
-        if(isPageable){
+        if (isPageable) {
             return Optional.of(new PageImpl<>(productList, PageRequest.of(page, size), productList.size()));
         }
 
@@ -53,31 +53,31 @@ public class ProductRepositoryImpl {
     }
 
     private void queryValues(MultiValueMap<String, String> params, Query query) {
-        if (StringHelper.isValidInt(params.getFirst("id"))){
+        if (StringHelper.isValidInt(params.getFirst("id"))) {
             query.setParameter("id", NumberHelper.toInt(params.getFirst("id")));
         }
-        if(StringHelper.isValid(params.getFirst("name"))){
+        if (StringHelper.isValid(params.getFirst("name"))) {
             query.setParameter("name", params.getFirst("name"));
         }
-        if(StringHelper.isValid(params.getFirst("ware_house"))){
+        if (StringHelper.isValid(params.getFirst("ware_house"))) {
             query.setParameter("ware_house", params.getFirst("ware_house"));
         }
-        if (StringHelper.isValidDouble(params.getFirst("price"))){
+        if (StringHelper.isValidDouble(params.getFirst("price"))) {
             query.setParameter("price", NumberHelper.toDouble(params.getFirst("price")));
         }
     }
 
     private void queryParams(MultiValueMap<String, String> params, StringBuilder queryBuilder) {
-        if(StringHelper.isValid(params.getFirst("id"))){
+        if (StringHelper.isValid(params.getFirst("id"))) {
             queryBuilder.append(" AND id = :id");
         }
-        if(StringHelper.isValid(params.getFirst("name"))){
+        if (StringHelper.isValid(params.getFirst("name"))) {
             queryBuilder.append(" AND name like :name");
         }
-        if(StringHelper.isValid(params.getFirst("ware_house"))){
+        if (StringHelper.isValid(params.getFirst("ware_house"))) {
             queryBuilder.append(" AND ware_house like :ware_house");
         }
-        if(StringHelper.isValid(params.getFirst("price"))){
+        if (StringHelper.isValid(params.getFirst("price"))) {
             queryBuilder.append(" AND price = :price");
         }
     }
